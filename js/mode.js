@@ -17,7 +17,7 @@ class mode{
 
         });
 
-        img.src = '/img/select_mode.png';
+        img.src = 'img/select_mode.png';
 
        m.stop(); 
        m.play("typea");
@@ -167,7 +167,6 @@ class mode{
 
 
                     }
-
 
 
 

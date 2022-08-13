@@ -9,7 +9,18 @@ var fr = 30;
 let lastTime = 0;
 let dropInterval = 1000;
 let dropCounter = 0;
+let dropCounter2 = 0;
 var inicio = true;
+var corOver = {
+    x:0,
+    y:-1
+}
+
+var clearOver = {
+    x:0,
+    y:21
+}
+
 const nextPieceContent = document.getElementById('nextPiece');
 const nextPiece = nextPieceContent.getContext('2d');
 
@@ -128,17 +139,11 @@ function drawMatriz(matriz,offset){
 
 
 
-    ctx.fillStyle = "#000";
+   
 
 
 }
 
-
-function fondo(){
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0,0,21,415);
-
-}
 
 
 function drawMatrizNext(matriz,offset){
@@ -270,20 +275,116 @@ function draw(){
 
 function update(time = 0){
 
+
+
     const deltaTime =  time - lastTime;
     lastTime = time;
     
-    dropCounter += deltaTime;
+    dropCounter += deltaTime; 
 
     if(dropCounter > dropInterval ){
 
         playerDrop();
 
     }
-    fondo();
+	
+
     draw();
+	
+	
+	
     updateScore();
-    requestAnimationFrame(update);   
+    if(!game_Manager.gameOver){
+        requestAnimationFrame(update);   
+
+    }else{
+
+        requestAnimationFrame(perdio);  
+    }
+}
+
+
+
+function perdio(time = 0){
+
+    const deltaTime =  time - lastTime;
+    lastTime = time;
+     
+    dropCounter2 += deltaTime; 
+
+    if(dropCounter2 > 0.5 ){
+
+       dropCounter2 = 0;
+       if(corOver.x < grid[corOver.x].length){
+
+        corOver.x++;
+
+        }else{
+
+            corOver.x=0;
+            corOver.y++;
+
+        }
+
+        ctx.drawImage(block, 0 , 0 ,16,16, corOver.x, corOver.y ,1,1);
+
+        if(corOver.x == grid[corOver.x].length && grid.length == corOver.y ){
+
+            dropCounter2 = 0;
+            requestAnimationFrame(limpiar);            
+
+        }else{
+
+            requestAnimationFrame(perdio); 
+        }
+
+    }
+
+}
+
+
+
+function limpiar(time = 0){
+
+    const deltaTime =  time - lastTime;
+    lastTime = time;
+     
+    dropCounter2 += deltaTime; 
+
+
+    if(dropCounter2 > 0.5 ){
+
+       dropCounter2 = 0;
+
+       if(clearOver.x < grid[clearOver.x].length){
+
+        clearOver.x++;
+
+        }else{
+
+            clearOver.x=0;
+            clearOver.y--;
+
+        }
+
+        console.log(clearOver.x+"=="+clearOver.y)
+        ctx.drawImage(block, 0 , 0 ,16,16, clearOver.x, clearOver.y ,1,1);
+
+        ctx.fillStyle = "#F8F8F8";
+        ctx.fillRect(clearOver.x,clearOver.y,16,16);
+
+        if(clearOver.x == 0 && -1 == clearOver.y ){
+
+            console.log("Cierre");
+        
+
+        }else{
+
+            requestAnimationFrame(limpiar); 
+        }
+
+    }
+
 }
 
 function gridSweep(){
@@ -314,7 +415,7 @@ function gridSweep(){
 function playerDrop(){
 
     player.pos.y++;
-    console.log(collide(grid,player)+"<====");
+    //console.log(collide(grid,player)+"<====");
 
     if(collide(grid,player)){
         player.pos.y--;
@@ -396,10 +497,11 @@ function playerReset(){
     if(collide(grid,player)){
 
 
-            grid.forEach(row => row.fill(0));
-            player.score = 0;
-            player.level = 1;
-            updateScore();
+            //grid.forEach(row => row.fill(0));
+            //player.score = 0;
+            //player.level = 1;
+            //updateScore();
+            game_Manager.gameOver = true;
 
     }
     
@@ -417,12 +519,98 @@ function updateScore(){
 }
 
 
+function gameOver(){
+
+    game_Manager.gameOver = true;
+
+    var x = 0;
+    var y = -1;
+
+    //ctx.drawImage(block, 0 , 0 ,16,16, x, y ,1,1);
+    console.log("("+x+","+y+")=="+grid.length+"-----"+grid[x].length)
+
+    var myInterval = setInterval(() => {
+
+       
+
+        if(x < grid[x].length){
+            x++;
+
+        }else{
+
+            x=0;
+            y++;
+
+        }
+
+
+        console.log("("+x+","+y+")=="+grid.length+"-----"+grid[x].length)
+        ctx.drawImage(block, 0 , 0 ,16,16, x, y ,1,1);
+
+
+        if(x == grid[x].length && grid.length == y ){
+            clearInterval(myInterval); 
+            console.log("Cierre");
+            clear();
+
+        }
+
+       
+
+    }, 0.0001);
+    
+
+}
+
+function clear(){
+
+    game_Manager.gameOver = true;
+    var x = 0;
+    var y = 21;
+
+    console.log("("+x+","+y+")=="+grid.length+"-----"+grid[x].length);
+    ctx.drawImage(block, 0 , 0 ,16,16, x, y ,1,1);
+
+    var myInterval = setInterval(() => {
+
+
+        if(x < grid[x].length){
+
+            x++;
+
+        }else{
+
+            x=0;
+            y--;
+
+        }
+
+        console.log("("+x+","+y+")=="+grid.length+"-----"+grid[x].length);
+        ctx.drawImage(block, 0 , 0 ,16,16, x, y ,1,1);
+
+        ctx.fillStyle = "#F8F8F8";
+        ctx.fillRect(x,y,16,16);
+
+        if(x == 0 && -1 == y ){
+            clearInterval(myInterval); 
+            console.log("Cierre");
+           
+
+        }
+
+
+    });
+
+
+}
+
+
 
 
 
 
 document.addEventListener("keydown", e => {
-    
+
     if(scene == 3){
 
         if(e.keyCode === 40){

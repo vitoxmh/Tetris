@@ -16,7 +16,7 @@ function inicio(){
 
     });
 
-    img.src = '/img/inicio.png';
+    img.src = 'img/inicio.png';
 
 
 
